@@ -5,12 +5,25 @@ using UnityEngine.InputSystem;
 public class ShooterPlayer : MonoBehaviour
 {
    private Vector2 movimiento;
+   private Vector2 mouseDelta;
    public Rigidbody rb;
    public float speed = 5;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+    }
+
+    private void Update()
+    {
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+        Ray ray = Camera.main.ScreenPointToRay(mousePos);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit))
+        {
+            Vector3 hitPoint = hit.point;
+            transform.forward = hitPoint - transform.position;
+        }
     }
     void FixedUpdate()
     {
@@ -24,4 +37,9 @@ public class ShooterPlayer : MonoBehaviour
     {
         movimiento = context.ReadValue<Vector2>();
     }
+
+    /*public void OnLook (InputAction.CallbackContext context)
+    {
+        mouseDelta = context.ReadValue<Vector2>();
+    }*/
 }
