@@ -8,6 +8,10 @@ public class ShooterPlayer : MonoBehaviour
    private Vector2 mouseDelta;
    public Rigidbody rb;
    public float speed = 5;
+  [Header ("Shooting")]
+   public Bullet bulletPrefab;
+   public Transform spawnPoint;
+   
 
     private void Awake()
     {
@@ -36,6 +40,16 @@ public class ShooterPlayer : MonoBehaviour
     public void OnMove (InputAction.CallbackContext context)
     {
         movimiento = context.ReadValue<Vector2>();
+    }
+
+    public void OnClick (InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Bullet bullet = Instantiate(bulletPrefab);
+            bullet.transform.position = spawnPoint.position;
+            bullet.transform.up = transform.forward;
+        }
     }
 
     /*public void OnLook (InputAction.CallbackContext context)
