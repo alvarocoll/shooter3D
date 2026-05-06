@@ -8,6 +8,7 @@ public class ShooterPlayer : MonoBehaviour
    private Vector2 mouseDelta;
    public Rigidbody rb;
    public float speed = 5;
+    public LayerMask groundLayer;
   [Header ("Shooting")]
    public Bullet bulletPrefab;
    public Transform spawnPoint;
@@ -23,7 +24,7 @@ public class ShooterPlayer : MonoBehaviour
         Vector2 mousePos = Mouse.current.position.ReadValue();
         Ray ray = Camera.main.ScreenPointToRay(mousePos);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit))
+        if (Physics.Raycast(ray, out hit, 1000, groundLayer))
         {
             Vector3 hitPoint = hit.point;
             transform.forward = hitPoint - transform.position;
