@@ -1,26 +1,46 @@
 
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class ShooterPlayer : MonoBehaviour
 {
    private Vector2 movimiento;
    private Vector2 mouseDelta;
-   public Rigidbody rb;
-   public float speed = 5;
-    public LayerMask groundLayer;
+   public SkinnedMeshRenderer mesh;
+   public UImanager uiManager;
+    public Animator animator;
+    [Header("Parameters")]
+  public Rigidbody rb;
+  public float speed = 5;
+  public LayerMask groundLayer;
   [Header ("Shooting")]
    public Bullet bulletPrefab;
    public Transform spawnPoint;
-   
+
+  [Header("Live")]
+    public int lives = 3;
+    private bool _canGetHit = true;
+    private float _noHitTime = 2f;
+
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
     }
 
+    private void Start()
+    {
+        uiManager.SetNewLife(lives);
+    }
+
     private void Update()
     {
+
+        if (lives <= 0)
+        {
+            return;
+        }
         Vector2 mousePos = Mouse.current.position.ReadValue();
         Ray ray = Camera.main.ScreenPointToRay(mousePos);
         RaycastHit hit;
@@ -28,6 +48,21 @@ public class ShooterPlayer : MonoBehaviour
         {
             Vector3 hitPoint = hit.point;
             transform.forward = hitPoint - transform.position;
+        }
+
+        animator.SetFloat("speed_anim", movimiento.magnitude);
+
+        if (!_canGetHit)
+        {
+            _noHitTime -= Time.deltaTime;
+            if (_noHitTime <= 0)
+            {
+                _canGetHit = true;
+                Material material = new Material(mesh.material);
+                material.color = Color.white;
+                mesh.material = material;
+                _noHitTime = 2f;
+            }
         }
     }
     void FixedUpdate()
@@ -50,6 +85,32 @@ public class ShooterPlayer : MonoBehaviour
             Bullet bullet = Instantiate(bulletPrefab);
             bullet.transform.position = spawnPoint.position;
             bullet.transform.up = transform.forward;
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.GetComponent<ENE_Zombie>())
+        {
+          
+            uiManager.AddScore(10);
+            Destroy(collision.gameObject);
+            if (_canGetHit)
+            {
+                _canGetHit = false;
+                animator.SetTrigger("react");
+                lives--;
+                uiManager.SetNewLife(lives);
+                Material material = new Material(mesh.material);
+                material.color = Color.red;
+                mesh.material = material;
+                if (lives <= 0)
+                {
+                    uiManager.ShowEndGame();
+                    //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                }
+            }
+           
         }
     }
 

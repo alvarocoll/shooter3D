@@ -3,10 +3,13 @@ using UnityEngine;
 public class ENE_Zombie : MonoBehaviour
 {
     private ShooterPlayer _player;
+    private UImanager uiManager;
 
     void Start()
     {
         _player = FindFirstObjectByType<ShooterPlayer>();
+        uiManager = FindFirstObjectByType<UImanager>();
+
     }
 
     
@@ -20,6 +23,7 @@ public class ENE_Zombie : MonoBehaviour
     {
         if(collision.gameObject.GetComponent<Bullet>())
         {
+            uiManager.AddScore(100);
             Destroy(gameObject);
             Destroy(collision.gameObject);
 
